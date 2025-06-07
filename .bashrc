@@ -6,11 +6,17 @@ if grep -q "Ubuntu" /etc/os-release; then
   return
 fi
 
+# TODO: I think this is included by default in arch. learn what this does and remove if not needed
 # If not running interactively, don't do anything
-alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
-export LKJLKJ='sdfsdf'
 [[ $- != *i* ]] && return
-alias ls='ls --color=auto'
+
+# https://wiki.archlinux.org/title/Dotfiles
+alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
+
 alias grep='grep --color=auto'
-PS1='[\u@\h \W]\$ '
+alias ls='ls --color=auto'
+
+printf "%s " "$(dirs -p)"
+export PS1="\n$ "
+
 export PATH="$HOME/.tfenv/bin:$PATH"
