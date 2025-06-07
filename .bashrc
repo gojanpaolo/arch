@@ -7,6 +7,7 @@ if grep -q "Ubuntu" /etc/os-release; then
 fi
 
 # If not running interactively, don't do anything
+alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
 export LKJLKJ='sdfsdf'
 [[ $- != *i* ]] && return
 alias ls='ls --color=auto'
