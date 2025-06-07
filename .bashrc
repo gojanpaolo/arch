@@ -14,7 +14,7 @@ fi
 alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
 
 alias grep='grep --color=auto'
-alias ls='ls --color=auto'
+alias la='ls --color=auto -alFh'
 
 printf "%s " "$(dirs -p)"
 export PS1="\n$ "
