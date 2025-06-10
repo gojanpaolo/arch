@@ -14,7 +14,10 @@ fi
 alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
 
 alias grep='grep --color=auto'
+alias l='less'
 alias la='ls --color=auto -alFh'
+alias v='nvim'
+alias :q='exit'
 
 printf "%s " "$(dirs -p)"
 export PS1="\n$ "
