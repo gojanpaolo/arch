@@ -1,0 +1,5 @@
+[keyboard]
+[[keyboard.bindings]]
+action = "Paste"
+key = "V"
+mods = "Control"

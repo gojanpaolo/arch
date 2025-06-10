@@ -9,7 +9,8 @@
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
-set $mod Mod1
+# use Mod4 so we can use alt (e.g. neovim copilot accept word per word)
+set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -53,6 +54,8 @@ bindsym $mod+Return exec i3-sensible-terminal
 
 # kill focused window
 bindsym $mod+Shift+q kill
+#bindsym $mod+Shift+q exec --no-startup-id ~/.config/i3/next_workspace.sh
+#bindsym $mod+Shift+q exec --no-startup-id bash -c 'i3-msg kill; ~/.config/i3/next_workspace.sh'
 
 # start dmenu (a program launcher)
 bindsym $mod+d exec --no-startup-id dmenu_run
@@ -189,4 +192,9 @@ bar {
         status_command i3status
 }
 
-exec slack
+exec --no-startup-id alacritty -e bash -c 'tmux attach -t a 2>/dev/null || tmux new -s a'
+exec --no-startup-id google-chrome-stable
+exec --no-startup-id slack
+
+assign [class="Google-chrome"] 2
+assign [class="Slack"] 3
