@@ -20,6 +20,7 @@ alias v='nvim'
 alias :q='exit'
 
 alias k='kubectl'
+alias _k='kubectl --kubeconfig="$kubeconfig" --context="$context"'
 
 alias kx='kubexporter'
 alias klocal='kubectl --context="minikube"'
@@ -33,7 +34,7 @@ alias tpsjson='terraform show -json ./logs/tfplan/jantest.tfplan | jq | nvim - '
 alias tv='terraform validate'
 alias tl='tflint --recursive --config="$(pwd)/.tflint.hcl" --max-workers=1 --format=compact'
 
-tarczf() {
+tarc() {
   name=${1%/} # remove trailing slash if present
   tar czf "$name.tar.gz" "$name"
 }
@@ -74,6 +75,41 @@ gprod() {
 
 gprodadmin() {
   gcloud container clusters get-credentials "first-cluster" --project="tsg-1st-k8s" --region="us-central1" --dns-endpoint --impersonate-service-account=ci-terraform-tsg@tsg-terraform.iam.gserviceaccount.com #--kubeconfig="$HOME/.kube/admin-config"
+}
+
+_knone() {
+  unset kubeconfig
+  unset context
+  unset project
+  echo "$kubeconfig" "$context" "$project"
+}
+
+_klocal() {
+  kubeconfig=$HOME/.kube/config
+  context=minikube
+  unset project
+  echo "$kubeconfig" "$context" "$project"
+}
+
+_kdev() {
+  kubeconfig=$HOME/.kube/config
+  context=gke_first-gaming-dev_us-central1_first-cluster
+  project=first-gaming-dev
+  echo "$kubeconfig" "$context" "$project"
+}
+
+_kpreprod() {
+  kubeconfig=$HOME/.kube/config
+  context=gke_tsg-1st-k8s-preprod_us-central1_first-cluster
+  project=tsg-1st-k8s-preprod
+  echo "$kubeconfig" "$context" "$project"
+}
+
+_kprod() {
+  kubeconfig=$HOME/.kube/config
+  context=gke_tsg-1st-k8s_us-central1_first-cluster
+  project=tsg-1st-k8s
+  echo "$kubeconfig" "$context" "$project"
 }
 
 troot() {
