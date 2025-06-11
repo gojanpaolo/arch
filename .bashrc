@@ -33,6 +33,23 @@ alias tpsjson='terraform show -json ./logs/tfplan/jantest.tfplan | jq | nvim - '
 alias tv='terraform validate'
 alias tl='tflint --recursive --config="$(pwd)/.tflint.hcl" --max-workers=1 --format=compact'
 
+tarczf() {
+  name=${1%/} # remove trailing slash if present
+  tar czf "$name.tar.gz" "$name"
+}
+
+gitcleanbranchlocal() {
+  # delete unnecessary local branches
+  for branch in $(git branch | grep -v '\*' | tr -d ' '); do
+    git branch -d $branch
+  done
+}
+
+gituser() {
+  git config user.email "jan.paologo@amtote.com"
+  git config user.name "Jan Paolo Go"
+}
+
 glocal() {
   k config use-context minikube
 }
@@ -148,6 +165,22 @@ tfunlock()
   save_lock_id
   terraform force-unlock -force "$(< logs/lock_id.log)";
   set +x
+}
+
+eenv() {
+  "$HOME/Dropbox/env/env.sh"
+}
+
+venv() {
+  nvim "$HOME/Dropbox/env/env.sh"
+}
+
+varch() {
+  nvim "$HOME/Dropbox/env/arch.md"
+}
+
+vrc() {
+  nvim "$HOME/.bashrc"
 }
 
 source <(kubectl completion bash)
