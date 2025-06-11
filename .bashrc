@@ -50,6 +50,12 @@ gituser() {
   git config user.name "Jan Paolo Go"
 }
 
+dwip() {
+  dotfiles add -u
+  dotfiles commit -m "wip"
+  dotfiles push
+}
+
 glocal() {
   k config use-context minikube
 }
