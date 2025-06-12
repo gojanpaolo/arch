@@ -10,11 +10,14 @@ fi
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
+HISTCONTROL=ignoredups
+
 # https://wiki.archlinux.org/title/Dotfiles
 alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
 
 alias grep='grep --color=auto'
 alias l='less'
+alias L='less'
 alias la='ls --color=auto -alFh'
 alias v='nvim'
 alias :q='exit'
@@ -112,6 +115,11 @@ _kprod() {
   echo "$kubeconfig" "$context" "$project"
 }
 
+tsg() {
+  cd "$HOME/tsg"
+  pwd
+}
+
 troot() {
   cd "$HOME/tsg/terraform-tsg"
   pwd
@@ -169,6 +177,7 @@ tpx()
   fi;
   mkdir logs/tfplan/ -p;
   rm -f logs/tf.log
+  tfwait
   time terraform plan -out=./logs/tfplan/jantest.tfplan "$@" 2>&1 | tee logs/tf.log
 }
 
@@ -194,19 +203,48 @@ tpsvalid() {
 }
 
 
-save_lock_id()
-{
-  awk '/^.*ID:/ { print $4 }' logs/tf.log > logs/lock_id.log
+#save_lock_id()
+#{
+#  awk '/^.*ID:/ { print $4 }' logs/tf.log > logs/lock_id.log
+#}
+
+
+#tfunlock()
+#{
+#  set -x;
+#  #terraform force-unlock -force "${1:-$(xsel -ob)}";
+#  save_lock_id
+#  terraform force-unlock -force "$(< logs/lock_id.log)";
+#  set +x
+#}
+
+tfwait() {
+  ask_unlock=${1:-"y"}
+  subpath=$(pwd | awk -F'/' '{ split($NF, a, "-"); print a[2] "/" $(NF-1) }')
+  tflock=$(gcloud storage cat "gs://tsg-terraform-state-$subpath/default.tflock" 2>/dev/null)
+  if [[ $? -eq 0 ]]; then
+    echo $tflock | jq '{Who, Operation, Created, ID}'
+    tflock_generation=$(gcloud storage objects describe gs://tsg-terraform-state-$subpath/default.tflock --format="value(generation)")
+
+    if [[ $ask_unlock == "y" ]]; then
+      read -p "unlock? (y/n): " unlock
+      if [[ $unlock == "y" ]]; then
+        terraform force-unlock -force "$tflock_generation"
+        return
+      fi
+    fi
+
+    echo "aaa"
+    sleep 2
+    tfwait "n"
+  fi
 }
 
-
-tfunlock()
-{
-  set -x;
-  #terraform force-unlock -force "${1:-$(xsel -ob)}";
-  save_lock_id
-  terraform force-unlock -force "$(< logs/lock_id.log)";
-  set +x
+tfstate() {
+  mkdir logs/tfstate/ --parents
+  file=logs/$(date +"%Y-%m-%d-%H-%M-%S").tfstate
+  terraform state pull > "$file"
+  nvim "$file"
 }
 
 eenv() {
@@ -237,3 +275,9 @@ export PS1="\n$ "
 
 export PATH="$HOME/.istioctl/bin:$PATH" # TODO: remove when we install istioctl using pacman
 export PATH="$HOME/.tfenv/bin:$PATH"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/opt/google-cloud-sdk/path.bash.inc' ]; then . '/opt/google-cloud-sdk/path.bash.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/opt/google-cloud-sdk/completion.bash.inc' ]; then . '/opt/google-cloud-sdk/completion.bash.inc'; fi

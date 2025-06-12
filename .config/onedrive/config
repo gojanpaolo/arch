@@ -1,1 +1,3 @@
 sync_dir = "/home/jan/onedrive"
+skip_dir = "/remote-only"
+skip_size = "20"
