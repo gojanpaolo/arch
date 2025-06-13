@@ -1,3 +1,6 @@
 sync_dir = "/home/jan/onedrive"
 skip_dir = "/remote-only"
 skip_size = "20"
+
+# resolve issue where neovim thinks file was updated outside of it
+force_session_upload = "true"

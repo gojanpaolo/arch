@@ -20,12 +20,13 @@ alias l='less'
 alias L='less'
 alias la='ls --color=auto -alFh'
 alias v='nvim'
+alias V='nvim'
 alias :q='exit'
+alias :Q='exit'
 
 alias k='kubectl'
 alias _k='kubectl --kubeconfig="$kubeconfig" --context="$context"'
 
-alias kx='kubexporter'
 alias klocal='kubectl --context="minikube"'
 alias kdev='kubectl --context="gke_first-gaming-dev_us-central1_first-cluster"'
 alias kpreprod='kubectl --context="gke_tsg-1st-k8s-preprod_us-central1_first-cluster"'
@@ -36,6 +37,19 @@ alias tps='terraform show -no-color ./logs/tfplan/jantest.tfplan | nvim - '
 alias tpsjson='terraform show -json ./logs/tfplan/jantest.tfplan | jq | nvim - '
 alias tv='terraform validate'
 alias tl='tflint --recursive --config="$(pwd)/.tflint.hcl" --max-workers=1 --format=compact'
+
+alias 1d='cd ~/onedrive'
+
+alias chrome='google-chrome-stable'
+
+kx() {
+  kubexporter
+  read -p "suffix: " suffix
+  name="$project-$(date +"%Y-%m-%d")-$suffix"
+  mv exports $name
+  tarc "$name"
+  mv "$name.tar.gz" "$HOME/onedrive/${PWD#/home/jan/tsg}"
+}
 
 tarc() {
   name=${1%/} # remove trailing slash if present
@@ -62,22 +76,27 @@ dwip() {
 
 glocal() {
   k config use-context minikube
+  unset project
 }
 
 gdev() {
   gcloud container clusters get-credentials first-cluster --project first-gaming-dev --region us-central1 --dns-endpoint
+  project=first-gaming-dev
 }
 
 gpreprod() {
   gcloud container clusters get-credentials first-cluster --project tsg-1st-k8s-preprod --region us-central1 --dns-endpoint
+  project=tsg-1st-k8s-preprod
 }
 
 gprod() {
   gcloud container clusters get-credentials "first-cluster" --project="tsg-1st-k8s" --region="us-central1" --dns-endpoint
+  project=tsg-1st-k8s
 }
 
 gprodadmin() {
   gcloud container clusters get-credentials "first-cluster" --project="tsg-1st-k8s" --region="us-central1" --dns-endpoint --impersonate-service-account=ci-terraform-tsg@tsg-terraform.iam.gserviceaccount.com #--kubeconfig="$HOME/.kube/admin-config"
+  project=tsg-1st-k8s
 }
 
 _knone() {
@@ -281,3 +300,6 @@ if [ -f '/opt/google-cloud-sdk/path.bash.inc' ]; then . '/opt/google-cloud-sdk/p
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/opt/google-cloud-sdk/completion.bash.inc' ]; then . '/opt/google-cloud-sdk/completion.bash.inc'; fi
+
+source ~/.atuinrc
+
