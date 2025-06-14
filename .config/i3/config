@@ -198,6 +198,7 @@ assign [class="Alacritty"] 1
 assign [class="Google-chrome"] 2
 assign [title="Firefox"] 2
 assign [class="Slack"] 3
+assign [class="VirtualBox Manager"] 10
 
 # for background image only
 exec --no-startup-id picom
@@ -208,5 +209,7 @@ exec --no-startup-id alacritty -e bash -c 'tmux attach -t a 2>/dev/null || tmux 
 exec --no-startup-id google-chrome-stable
 #exec --no-startup-id firefox
 exec --no-startup-id slack
+exec --no-startup-id flameshot
+exec --no-startup-id virtualbox
 
 bindsym Print exec --no-startup-id flameshot gui

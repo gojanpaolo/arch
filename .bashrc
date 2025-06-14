@@ -42,6 +42,20 @@ alias 1d='cd ~/onedrive'
 
 alias chrome='google-chrome-stable'
 
+cht () {
+    local selected
+    selected=$(rg --no-heading --line-number '' ~/cht | \
+        fzf --delimiter : --nth 1,3.. \
+            --preview 'bat --style=numbers --color=always --highlight-line {2} {1}' \
+            --preview-window=right:70%) || return
+
+    local file line
+    file=$(echo "$selected" | cut -d: -f1)
+    line=$(echo "$selected" | cut -d: -f2)
+
+    [ -n "$file" ] && ${EDITOR:-nvim} +"$line" "$file"
+}
+
 kx() {
   kubexporter
   read -p "suffix: " suffix
@@ -49,6 +63,15 @@ kx() {
   mv exports $name
   tarc "$name"
   mv "$name.tar.gz" "$HOME/onedrive/${PWD#/home/jan/tsg}"
+}
+
+kflinkfinalize() {
+  TERMINATING_NAMESPACES=$(kubectl get namespace --no-headers -o custom-columns=":metadata.name" --field-selector status.phase=Terminating)
+  for namespace in $TERMINATING_NAMESPACES;
+  do
+    echo "Found namespace '$namespace'..."
+    kubectl get flinkdeployment -n "$namespace" --no-headers |   awk '{print $1 }' |   xargs kubectl patch -n "$namespace" flinkdeployment -p '{"metadata":{"finalizers":[]}}'   --type=merge
+  done
 }
 
 tarc() {

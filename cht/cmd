@@ -1,0 +1,9 @@
+# run each line in a file as a command
+while [ -s /tmp/istioctl-ps ]; do
+  while read -r cmd; do
+    echo "$cmd"
+    eval "$cmd"
+  done < <(head -n 30 /tmp/istioctl-ps)
+  sed -i '1,30d' /tmp/istioctl-ps
+  wait_for_most_pods_to_be_ready
+done

@@ -1,0 +1,13 @@
+format all resource ids with -target flag in terraform plan
+:%s/^# \([^ ]\+\(.\{-}]\)\?\) \(must be replaced\|will be destroyed\|will be created\|will be updated in-place\|is tainted, so must be replaced\)$/-target='\1' \\
+#:%s/ # \(.*\) \(has moved\|will\|will no longer\|must\) \(to\|be\) .*/-target='\1' \\
+#deb :%s/ # \(.*\) \(has moved\|will\|will no longer\|must\) \(to\|be\) ./-target='\1' \
+
+delete all but resource id in terraform plan
+:g!/# .*\(will\|must\) /d
+
+transform istioctl proxy-status to kubectl rollout restart commands
+:%s/^\(\S\+\)-[a-z0-9]\{9,10\}-[a-z0-9]\{4,5\}\.\(\S\+\)/kubectl rollout restart deploy "\1" -n "\2"/
+
+unique and sort lines in a file
+:sort u
