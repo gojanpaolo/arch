@@ -23,12 +23,14 @@ alias v='nvim'
 alias V='nvim'
 alias :q='exit'
 alias :Q='exit'
+alias clip='xclip -selection clipboard'
 
 alias k='kubectl'
 alias _k='kubectl --kubeconfig="$kubeconfig" --context="$context"'
 
 alias klocal='kubectl --context="minikube"'
 alias kdev='kubectl --context="gke_first-gaming-dev_us-central1_first-cluster"'
+alias kpdev='kubectl --context="gke_tsg-parimax-dev_us-central1_main"'
 alias kpreprod='kubectl --context="gke_tsg-1st-k8s-preprod_us-central1_first-cluster"'
 alias kprod='kubectl --context="gke_tsg-1st-k8s_us-central1_first-cluster"'
 
@@ -57,12 +59,21 @@ cht () {
 }
 
 kx() {
-  kubexporter
   read -p "suffix: " suffix
-  name="$project-$(date +"%Y-%m-%d")-$suffix"
+  kubexporter
+  current_ctx=$(k config current-context)
+  name="$current_ctx-$(date +"%Y-%m-%d")-$suffix"
   mv exports $name
   tarc "$name"
   mv "$name.tar.gz" "$HOME/onedrive/${PWD#/home/jan/tsg}"
+}
+
+decode() {
+  cat | jq '.data | map_values(@base64d)'
+}
+
+istiodiscoveryaddress() {
+  istioctl proxy-config bootstrap deploy/$1 | jq .bootstrap.node.metadata.PROXY_CONFIG.discoveryAddress
 }
 
 kflinkfinalize() {
@@ -105,6 +116,10 @@ glocal() {
 gdev() {
   gcloud container clusters get-credentials first-cluster --project first-gaming-dev --region us-central1 --dns-endpoint
   project=first-gaming-dev
+}
+
+gpdev() {
+  gcloud container clusters get-credentials "main" --project="tsg-parimax-dev" --region="us-central1"
 }
 
 gpreprod() {
@@ -199,6 +214,7 @@ t14() {
 
 ta()
 {
+  tfwait
   time terraform apply "$@" 2>&1 | tee logs/tf.log
 }
 
@@ -276,7 +292,6 @@ tfwait() {
       fi
     fi
 
-    echo "aaa"
     sleep 2
     tfwait "n"
   fi
@@ -305,6 +320,12 @@ vrc() {
   nvim "$HOME/.bashrc"
 }
 
+gwip() {
+  commit_message=$1
+  git add -A
+  git commit -m "${commit_message:-wip} [skip ci]"
+}
+
 source <(kubectl completion bash)
 complete -F __start_kubectl k
 complete -F __start_kubectl _k
@@ -317,6 +338,10 @@ export PS1="\n$ "
 
 export PATH="$HOME/.istioctl/bin:$PATH" # TODO: remove when we install istioctl using pacman
 export PATH="$HOME/.tfenv/bin:$PATH"
+
+# k edit ns default
+# error: unable to launch the editor "vi"
+export EDITOR=nvim
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/opt/google-cloud-sdk/path.bash.inc' ]; then . '/opt/google-cloud-sdk/path.bash.inc'; fi

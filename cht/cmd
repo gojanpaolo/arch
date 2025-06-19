@@ -7,3 +7,6 @@ while [ -s /tmp/istioctl-ps ]; do
   sed -i '1,30d' /tmp/istioctl-ps
   wait_for_most_pods_to_be_ready
 done
+
+# unzip
+bsdtar -xf $file.zip
