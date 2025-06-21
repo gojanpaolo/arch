@@ -198,6 +198,10 @@ t04() {
   cd ~/tsg/terraform-tsg/0-bootstrap/4-prod/
 }
 
+t10() {
+  cd ~/tsg/terraform-tsg/1-base/0-shared/
+}
+
 t11() {
   cd ~/tsg/terraform-tsg/1-base/1-dev/
 }
@@ -332,6 +336,8 @@ complete -F __start_kubectl _k
 complete -F __start_kubectl kdev
 complete -F __start_kubectl kpreprod
 complete -F __start_kubectl kprod
+complete -F __start_kubectl klocal
+complete -F __start_kubectl kpdev
 
 printf "%s " "$(dirs -p)"
 export PS1="\n$ "
