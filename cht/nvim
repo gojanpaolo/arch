@@ -1,13 +1,200 @@
 format all resource ids with -target flag in terraform plan
-:%s/^# \([^ ]\+\(.\{-}]\)\?\) \(must be replaced\|will be destroyed\|will be created\|will be updated in-place\|is tainted, so must be replaced\)$/-target='\1' \\
+%s/^# \([^ ]\+\(.\{-}]\)\?\) \(must be replaced\|will be destroyed\|will be created\|will be updated in-place\|is tainted, so must be replaced\)$/-target='\1' \\
 #:%s/ # \(.*\) \(has moved\|will\|will no longer\|must\) \(to\|be\) .*/-target='\1' \\
 #deb :%s/ # \(.*\) \(has moved\|will\|will no longer\|must\) \(to\|be\) ./-target='\1' \
 
 delete all but resource id in terraform plan
-:g!/# .*\(will\|must\) /d
+g!/# .*\(will\|must\) /d
 
 transform istioctl proxy-status to kubectl rollout restart commands
-:%s/^\(\S\+\)-[a-z0-9]\{9,10\}-[a-z0-9]\{4,5\}\.\(\S\+\)/kubectl rollout restart deploy "\1" -n "\2"/
+%s/^\(\S\+\)-[a-z0-9]\{9,10\}-[a-z0-9]\{4,5\}\.\(\S\+\)/kubectl rollout restart deploy "\1" -n "\2"/
 
 unique and sort lines in a file
-:sort u
+sort u
+
+remove trailing whitespace
+%s/\s\+$//
+
+format json
+%!jq '.'
+
+# Vi #vi
+
+- Why?
+  - ergonomic
+  - be more comfortable with the terminal
+    - use core utilities more (awk, diff, find, grep, sed, etc)
+      - `--help` uses similar navigation (e.g. `/` to find)
+    - vi is usually the editor when you ssh into a server
+    - how language servers work
+  - should be more efficient/faster eventually?
+
+## Normal mode
+
+### Movement
+
+| cmd    | note                            |
+| ------ | ------------------------------- |
+| hjkl   | jkkljlkjlk                      |
+| $      | char end                        |
+| 0      | char 0                          |
+| _      | first non-blank char            |
+| /      | search                          |
+| n      | next search                     |
+| fx     | find x forward                  |
+| Fx     | find x backward                 |
+| tx     | to x forward                    |
+| Tx     | to x backward                   |
+| ;      | repeat last f, F, t, T          |
+| ,      | repeat last f, F, t, T backward |
+| w      | word forward                    |
+| W      | WORD forward                    |
+| b      | word backward                   |
+| B      | WORD backward                   |
+| E      | End of word forward             |
+| )      | sentence forward                |
+| (      | sentence backward               |
+| }      | paragraph forward               |
+| {      | paragraph backward              |
+| Ctrl+d | down half page                  |
+| Ctrl+u | up half page                    |
+| Ctrl+b | back up one page                |
+| Ctrl+f | forward one page                |
+| gg     | go start of file                |
+| G      | Go end of file                  |
+| gx     | go to link                      |
+| %      | jump to matching ([{}])         |
+| zz     | center cursor line in window    |
+| Ctrl+o | undo cursor                     |
+
+### Search
+
+| cmd  | note                                   |
+| ---- | -------------------------------------- |
+| /foo | search for foo                         |
+| ?foo | search for foo backwards               |
+| n    | next search result                     |
+| N    | search result backwards                |
+| *    | search for word under cursor           |
+| #    | search for word under cursor backwards |
+| ]d | jump to next diagnostic/warning/error |
+| /\Vfoo | search for foo verbatim (no regex)    |
+
+### Mark
+
+| cmd | note                              |
+| --- | --------------------------------- |
+| m   | mark                              |
+| `   | jump to mark                      |
+| ``  | toggle between last two positions |
+| `.  | move to last edited position      |
+
+## LSP
+
+https://www.lazyvim.org/keymaps#lsp
+
+| key | note |
+| --- | ---- |
+| K | hover|
+
+### Edit
+
+| cmd    | note                  |
+| ------ | --------------------- |
+| dd     | delete line           |
+| D      | delete to end of line |
+| u      | undo                  |
+| Ctrl+r | redo                  |
+| y      | yank                  |
+| p      | paste after           |
+| P      | paste before          |
+| .      | repeat last command   |
+| "_     | black hole register   |
+
+To Insert Mode
+
+| cmd | note                  |
+| --- | --------------------- |
+| o   | open line below       |
+| O   | open line above       |
+| i   | insert                |
+| I   | insert start of line  |
+| a   | append                |
+| A   | append end line       |
+| ciw | change inner word     |
+| C   | change to end of line |
+
+## Insert mode
+
+| cmd    | note                  |
+| ------ | --------------------- |
+| Ctrl+c | change to normal mode |
+| Ctrl+o | temporary normal mode |
+
+## Command mode
+
+| cmd             | note                                   | remarks                                                                            |
+| --------------- | -------------------------------------- | ---------------------------------------------------------------------------------- |
+| :1,$s/foo/bar/g | replace foo with bar in the whole file |                                                                                    |
+| :r! ls          | insert the output of ls                |                                                                                    |
+| :r file.txt     | insert the content of file.txt         |                                                                                    |
+| :h              | help                                   | i_CTRL-V https://unix.stackexchange.com/questions/366869/what-does-ctrlv-do-in-vim |
+| :%s/foo/bar/gc  | replace foo with bar with confirmation |                                                                                    |
+| :Ex             | open file explorer                     |                                                                                    |
+
+## Visual mode
+
+| cmd             | note                    | remarks                                                                                         |
+| --------------- | ----------------------- | ----------------------------------------------------------------------------------------------- |
+| v               | visual charwise         |                                                                                                 |
+| V               | Visual linewise         |                                                                                                 |
+| Ctrl+q / Ctrl+v | visual block mode start | Exit with Ctrl+[ or Esc instead of Ctrl+C -- https://stackoverflow.com/questions/1676632/whats-a-quick-way-to-comment-uncomment-lines-in-vim |
+
+## .vimrc
+
+| cmd             | note             |
+| --------------- | ---------------- |
+| \C              | case insensitive |
+| :set ignorecase | case insensitive |
+
+https://github.com/carlhuda/janus
+
+## Environment Variables
+
+EDITOR=nvim # sets up default editor
+
+## Workflows
+
+### Windows
+
+`C-w s` to split window
+`C-w w` to jump window
+`C-w q` to close window
+
+### Inspecting data structure
+
+e.g. you're inspecing a k8s manifest. You are in secretRef.name = "example".
+Then to check the `kind`. Just `?kind` without pressing enter.
+Then you press `Ctrl+c`.
+Then to check the `name` of that object. You just `?name` without pressing enter.
+Then you press `Ctrl+c`.
+and so on ...
+
+## Notes
+
+- vim motions | https://www.youtube.com/watch?v=lWTzqPfy1gE
+  - 5:01 vi{ yi{ ya{ | copy blocks
+  - 5:29 ds dp | delete sentence/paragraph
+  - 5:40 dtx | delete to x
+
+```text
+ci" ci{
+y%
+0y/`⏎
+C-q hjkl d # delete highlighted
+
+y$ d$ # to end of line
+ciw ciW diw diW yiw yiW # word
+ggyG ggVG ggdG # cut/copy all
+```
+---

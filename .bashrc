@@ -25,6 +25,15 @@ alias :q='exit'
 alias :Q='exit'
 alias clip='xclip -selection clipboard'
 
+alias gs='git status'
+alias ga='git add -p'
+alias gd='git diff'
+alias gc='git commit -m'
+alias gcd='git checkout develop'
+alias grd='git rebase develop'
+alias gpl='git pull'
+alias gps='git push'
+
 alias k='kubectl'
 alias _k='kubectl --kubeconfig="$kubeconfig" --context="$context"'
 
@@ -33,6 +42,7 @@ alias kdev='kubectl --context="gke_first-gaming-dev_us-central1_first-cluster"'
 alias kpdev='kubectl --context="gke_tsg-parimax-dev_us-central1_main"'
 alias kpreprod='kubectl --context="gke_tsg-1st-k8s-preprod_us-central1_first-cluster"'
 alias kprod='kubectl --context="gke_tsg-1st-k8s_us-central1_first-cluster"'
+alias kloadtesting='kubectl --context="gke_tsg-1st-k8s-preprod_us-central1-a_load-testing"'
 
 alias ti='time terraform init '
 alias tps='terraform show -no-color ./logs/tfplan/jantest.tfplan | nvim - '
@@ -65,7 +75,20 @@ kx() {
   name="$current_ctx-$(date +"%Y-%m-%d")-$suffix"
   mv exports $name
   tarc "$name"
-  mv "$name.tar.gz" "$HOME/onedrive/${PWD#/home/jan/tsg}"
+
+  if [[ ! -d "$HOME/onedrive/${PWD#/home/jan/tsg/}" ]]; then
+    read -p "onedrive folder does not exist. Create it? (y/n): " move_to_onedrive
+  else
+    echo "onedrive folder exists. Moving to onedrive."
+    move_to_onedrive="y"
+  fi
+
+  if [[ $move_to_onedrive == "y" ]]; then
+    mkdir -p "$HOME/onedrive/${PWD#/home/jan/tsg}"
+    mv "$name.tar.gz" "$HOME/onedrive/${PWD#/home/jan/tsg}"
+  else
+    echo "Not moving to onedrive."
+  fi
 }
 
 decode() {
@@ -137,6 +160,11 @@ gprodadmin() {
   project=tsg-1st-k8s
 }
 
+gloadtesting() {
+  gcloud container clusters get-credentials "load-testing" --project="tsg-1st-k8s-preprod" --region="us-central1-a" --dns-endpoint
+  project=tsg-1st-k8s-preprod
+}
+
 _knone() {
   unset kubeconfig
   unset context
@@ -172,9 +200,22 @@ _kprod() {
   echo "$kubeconfig" "$context" "$project"
 }
 
+_kloadtesting() {
+  kubeconfig=$HOME/.kube/config
+  context=gke_tsg-1st-k8s-preprod_us-central1-a_load-testing
+  project=tsg-1st-k8s-preprod
+  echo "$kubeconfig" "$context" "$project"
+}
+
 tsg() {
   cd "$HOME/tsg"
   pwd
+}
+
+dtest() {
+  cd "$HOME/tsg/terraform-tsg/devopstest"
+  pwd
+  git checkout janwip
 }
 
 troot() {
@@ -184,37 +225,43 @@ troot() {
 
 t00() {
   cd ~/tsg/terraform-tsg/0-bootstrap/0-shared/
+  pwd
 }
 
 t01() {
   cd ~/tsg/terraform-tsg/0-bootstrap/1-dev/
+  pwd
 }
 
 t03() {
   cd ~/tsg/terraform-tsg/0-bootstrap/3-preprod/
+  pwd
 }
 
 t04() {
   cd ~/tsg/terraform-tsg/0-bootstrap/4-prod/
+  pwd
 }
 
 t10() {
   cd ~/tsg/terraform-tsg/1-base/0-shared/
+  pwd
 }
 
 t11() {
   cd ~/tsg/terraform-tsg/1-base/1-dev/
+  pwd
 }
 
 t13() {
   cd ~/tsg/terraform-tsg/1-base/3-preprod/
+  pwd
 }
 
 t14() {
   cd ~/tsg/terraform-tsg/1-base/4-prod/
+  pwd
 }
-
-
 
 ta()
 {
@@ -222,13 +269,11 @@ ta()
   time terraform apply "$@" 2>&1 | tee logs/tf.log
 }
 
-
 tp()
 {
   tpx "$@"
   tpsvalid
 }
-
 
 tpx()
 {
@@ -243,7 +288,6 @@ tpx()
   time terraform plan -out=./logs/tfplan/jantest.tfplan "$@" 2>&1 | tee logs/tf.log
 }
 
-
 tprf()
 {
     tp -refresh=false "$@"
@@ -252,7 +296,6 @@ tprf()
     #lock_id=$(< logs/lock_id.log);
     #if [[ -z "$lock_id" ]]; then
 }
-
 
 tpsvalid() {
   if grep -q "Error: " logs/tf.log; then
@@ -264,21 +307,29 @@ tpsvalid() {
   fi
 }
 
-
 #save_lock_id()
 #{
 #  awk '/^.*ID:/ { print $4 }' logs/tf.log > logs/lock_id.log
 #}
 
-
-#tfunlock()
-#{
+tfunlock() {
 #  set -x;
 #  #terraform force-unlock -force "${1:-$(xsel -ob)}";
 #  save_lock_id
 #  terraform force-unlock -force "$(< logs/lock_id.log)";
 #  set +x
-#}
+  subpath=$(pwd | awk -F'/' '{ split($NF, a, "-"); print a[2] "/" $(NF-1) }')
+  tflock=$(gcloud storage cat "gs://tsg-terraform-state-$subpath/default.tflock" 2>/dev/null)
+  if [[ $? -eq 0 ]]; then
+    echo $tflock | jq '{Who, Operation, Created, ID}'
+    tflock_generation=$(gcloud storage objects describe gs://tsg-terraform-state-$subpath/default.tflock --format="value(generation)")
+
+    read -p "unlock? (y/n): " unlock
+    if [[ $unlock == "y" ]]; then
+      terraform force-unlock -force "$tflock_generation"
+    fi
+  fi
+}
 
 tfwait() {
   ask_unlock=${1:-"y"}
@@ -324,6 +375,10 @@ vrc() {
   nvim "$HOME/.bashrc"
 }
 
+vcht() {
+  nvim "$HOME/cht"
+}
+
 gwip() {
   commit_message=$1
   git add -A
@@ -338,6 +393,7 @@ complete -F __start_kubectl kpreprod
 complete -F __start_kubectl kprod
 complete -F __start_kubectl klocal
 complete -F __start_kubectl kpdev
+complete -F __start_kubectl kloadtesting
 
 printf "%s " "$(dirs -p)"
 export PS1="\n$ "
@@ -356,4 +412,7 @@ if [ -f '/opt/google-cloud-sdk/path.bash.inc' ]; then . '/opt/google-cloud-sdk/p
 if [ -f '/opt/google-cloud-sdk/completion.bash.inc' ]; then . '/opt/google-cloud-sdk/completion.bash.inc'; fi
 
 source ~/.atuinrc
+
+# mentioned after running `sudo pacman -S nvm`
+source /usr/share/nvm/init-nvm.sh
 
