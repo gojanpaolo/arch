@@ -58,7 +58,8 @@ bindsym $mod+Shift+q kill
 #bindsym $mod+d exec --no-startup-id dmenu_run
 
 # https://bbs.archlinux.org/viewtopic.php?id=199290
-bindsym $mod+d exec --no-startup-id dmenu_path | grep -v -f /home/jan/.config/dmenu_exclude | dmenu "$@" | ${SHELL:-"/bin/sh"} &
+#bindsym $mod+d exec --no-startup-id dmenu_path | grep -v -f /home/jan/.config/dmenu_exclude | dmenu "$@" | ${SHELL:-"/bin/sh"} &
+bindsym $mod+d exec --no-startup-id dmenu_path | grep -f /home/jan/.config/dmenu_include | dmenu "$@" | ${SHELL:-"/bin/sh"} &
 
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
