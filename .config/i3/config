@@ -59,7 +59,7 @@ bindsym $mod+Shift+q kill
 
 # https://bbs.archlinux.org/viewtopic.php?id=199290
 #bindsym $mod+d exec --no-startup-id dmenu_path | grep -v -f /home/jan/.config/dmenu_exclude | dmenu "$@" | ${SHELL:-"/bin/sh"} &
-bindsym $mod+d exec --no-startup-id dmenu_path | grep -f /home/jan/.config/dmenu_include | dmenu "$@" | ${SHELL:-"/bin/sh"} &
+bindsym $mod+d exec --no-startup-id dmenu_path | grep -wf /home/jan/.config/dmenu_include | dmenu "$@" | ${SHELL:-"/bin/sh"} &
 
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
@@ -206,7 +206,7 @@ exec --no-startup-id feh --bg-scale /home/jan/images/hokusai.png # https://githu
 
 exec --no-startup-id workrave
 exec --no-startup-id alacritty -e bash -c 'tmux attach -t a 2>/dev/null || tmux new -s a'
-exec --no-startup-id firejail google-chrome-stable
+exec --no-startup-id firejail --rlimit-as=90g google-chrome-stable
 exec --no-startup-id firejail firefox
 exec --no-startup-id slack
 exec --no-startup-id flameshot

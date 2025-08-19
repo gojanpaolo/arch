@@ -29,8 +29,12 @@ alias gs='git status'
 alias ga='git add -p'
 alias gd='git diff'
 alias gds='git diff --staged'
-alias gc='git commit -m'
+alias gcm='git commit -m'
+alias gch='git checkout'
+alias gcb='git checkout -b'
 alias gcd='git checkout develop'
+alias gf='git fetch'
+alias gfd='git fetch origin develop:develop'
 alias grd='git rebase develop'
 alias gpl='git pull'
 alias gps='git push'
@@ -143,7 +147,7 @@ gdev() {
 }
 
 gpdev() {
-  gcloud container clusters get-credentials "main" --project="tsg-parimax-dev" --region="us-central1"
+  gcloud container clusters get-credentials "main" --project="tsg-parimax-dev" --region="us-central1" --dns-endpoint
 }
 
 gpreprod() {
@@ -201,6 +205,13 @@ _kprod() {
   echo "$kubeconfig" "$context" "$project"
 }
 
+_kpdev() {
+  kubeconfig=$HOME/.kube/config
+  context=gke_tsg-parimax-dev_us-central1_main
+  project=tsg-parimax-dev
+  echo "$kubeconfig" "$context" "$project"
+}
+
 _kloadtesting() {
   kubeconfig=$HOME/.kube/config
   context=gke_tsg-1st-k8s-preprod_us-central1-a_load-testing
@@ -210,6 +221,11 @@ _kloadtesting() {
 
 tsg() {
   cd "$HOME/tsg"
+  pwd
+}
+
+iam() {
+  cd "$HOME/tsg/iam"
   pwd
 }
 
