@@ -20,6 +20,7 @@ alias l='less'
 alias L='less'
 alias la='ls --color=auto -alFh'
 alias v='nvim'
+alias vi='nvim'
 alias V='nvim'
 alias :q='exit'
 alias :Q='exit'
@@ -28,11 +29,12 @@ alias clip='xclip -selection clipboard'
 alias gs='git status'
 alias ga='git add -p'
 alias gd='git diff'
-alias gds='git diff --staged'
+alias gd-='git diff --staged'
 alias gcm='git commit -m'
 alias gch='git checkout'
 alias gcb='git checkout -b'
 alias gcd='git checkout develop'
+alias gc-='git checkout -'
 alias gf='git fetch'
 alias gfd='git fetch origin develop:develop'
 alias grd='git rebase develop'
@@ -48,6 +50,9 @@ alias kpdev='kubectl --context="gke_tsg-parimax-dev_us-central1_main"'
 alias kpreprod='kubectl --context="gke_tsg-1st-k8s-preprod_us-central1_first-cluster"'
 alias kprod='kubectl --context="gke_tsg-1st-k8s_us-central1_first-cluster"'
 alias kloadtesting='kubectl --context="gke_tsg-1st-k8s-preprod_us-central1-a_load-testing"'
+alias hdev='helm --kube-context gke_first-gaming-dev_us-central1_first-cluster'
+alias hpreprod='helm --kube-context gke_tsg-1st-k8s-preprod_us-central1_first-cluster'
+alias hprod='helm --kube-context gke_tsg-1st-k8s_us-central1_first-cluster'
 
 alias ti='time terraform init '
 alias tps='terraform show -no-color ./logs/tfplan/jantest.tfplan | nvim - '
@@ -58,6 +63,10 @@ alias tl='tflint --recursive --config="$(pwd)/.tflint.hcl" --max-workers=1 --for
 alias 1d='cd ~/onedrive'
 
 alias chrome='google-chrome-stable'
+
+tmp() {
+  cd $(mktemp -d)
+}
 
 cht () {
     local selected
@@ -75,7 +84,9 @@ cht () {
 
 kx() {
   read -p "suffix: " suffix
-  kubexporter
+  date
+  echo "est: dev 5m?"
+  time kubexporter
   current_ctx=$(k config current-context)
   name="$current_ctx-$(date +"%Y-%m-%d")-$suffix"
   mv exports $name
@@ -390,6 +401,7 @@ varch() {
 
 vrc() {
   nvim "$HOME/.bashrc"
+  source "$HOME/.bashrc"
 }
 
 vcht() {
@@ -400,6 +412,27 @@ gwip() {
   commit_message=$1
   git add -A
   git commit -m "${commit_message:-wip} [skip ci]"
+}
+
+yq_clean() {
+  file=$1
+  cp ${file} $(date +%s)_.bak
+  yq -Pi ea '[.] | sort_by(.kind, .metadata.name, .metadata.namespace) | .[] | splitDoc' ${file}
+  yq -i '. | sort_keys(..)' ${file}
+  yq -i '... comments=""' ${file}
+  yq -i '. |= (del(.metadata.annotations."argocd.argoproj.io/tracking-id"))' ${file}
+  yq -i '. |= (del(.metadata.annotations."kubectl.kubernetes.io/last-applied-configuration"))' ${file}
+  yq -i '. |= (del(.metadata.creationTimestamp))' ${file}
+  yq -i '. |= (del(.metadata.generation))' ${file}
+  yq -i '. |= (del(.metadata.resourceVersion))' ${file}
+  yq -i '. |= (del(.metadata.uid))' ${file}
+  yq -i '. |= (del(.status))' ${file}
+
+  # crds get this automatically by default if conversion is not specified
+  yq -i 'del(select(.spec.conversion.strategy == "None" and (.spec.conversion | keys | length) == 1) | .spec.conversion)' ${file}
+
+  yq e 'select(.kind == "CustomResourceDefinition")' ${file} > crd_${file}
+  yq -i e 'select(.kind != "CustomResourceDefinition")' ${file}
 }
 
 source <(kubectl completion bash)

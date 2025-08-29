@@ -18,6 +18,9 @@ remove trailing whitespace
 format json
 %!jq '.'
 
+reload file (e.g. if edited outside of nvim)
+:e
+
 # Vi #vi
 
 - Why?
