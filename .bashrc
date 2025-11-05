@@ -28,18 +28,18 @@ alias clip='xclip -selection clipboard'
 
 alias gs='git status'
 alias ga='git add -p'
+alias gb='git branch'
 alias gd='git diff'
 alias gd-='git diff --staged'
 alias gcm='git commit -m'
 alias gch='git checkout'
 alias gcb='git checkout -b'
-alias gcd='git checkout develop'
+alias gcd='git checkout dev'
 alias gc-='git checkout -'
 alias gf='git fetch'
-alias gfd='git fetch origin develop:develop'
-alias grd='git rebase develop'
+alias gfd='git fetch origin dev:dev'
+alias grd='git rebase dev'
 alias gpl='git pull'
-alias gps='git push'
 
 alias k='kubectl'
 alias _k='kubectl --kubeconfig="$kubeconfig" --context="$context"'
@@ -48,6 +48,7 @@ alias klocal='kubectl --context="minikube"'
 alias kdev='kubectl --context="gke_first-gaming-dev_us-central1_first-cluster"'
 alias kpdev='kubectl --context="gke_tsg-parimax-dev_us-central1_main"'
 alias kpreprod='kubectl --context="gke_tsg-1st-k8s-preprod_us-central1_first-cluster"'
+alias kppreprod='kubectl --context="gke_tsg-parimax-preprod_us-central1_main"'
 alias kprod='kubectl --context="gke_tsg-1st-k8s_us-central1_first-cluster"'
 alias kloadtesting='kubectl --context="gke_tsg-1st-k8s-preprod_us-central1-a_load-testing"'
 alias hdev='helm --kube-context gke_first-gaming-dev_us-central1_first-cluster'
@@ -63,6 +64,10 @@ alias tl='tflint --recursive --config="$(pwd)/.tflint.hcl" --max-workers=1 --for
 alias 1d='cd ~/onedrive'
 
 alias chrome='google-chrome-stable'
+
+gps() {
+  git push "$@" # && exit
+}
 
 tmp() {
   cd $(mktemp -d)
@@ -95,7 +100,7 @@ kx() {
   if [[ ! -d "$HOME/onedrive/${PWD#/home/jan/tsg/}" ]]; then
     read -p "onedrive folder does not exist. Create it? (y/n): " move_to_onedrive
   else
-    echo "onedrive folder exists. Moving to onedrive."
+    echo "onedrive folder exists. Moving tar file to onedrive."
     move_to_onedrive="y"
   fi
 
@@ -147,6 +152,10 @@ dwip() {
   dotfiles push
 }
 
+gnone() {
+  k config unset current-context
+}
+
 glocal() {
   k config use-context minikube
   unset project
@@ -160,6 +169,11 @@ gdev() {
 gpdev() {
   gcloud container clusters get-credentials "main" --project="tsg-parimax-dev" --region="us-central1" --dns-endpoint
 }
+
+gppreprod() {
+  gcloud container clusters get-credentials "main" --project="tsg-parimax-preprod" --region="us-central1" --dns-endpoint
+}
+
 
 gpreprod() {
   gcloud container clusters get-credentials first-cluster --project tsg-1st-k8s-preprod --region us-central1 --dns-endpoint
@@ -232,6 +246,16 @@ _kloadtesting() {
 
 tsg() {
   cd "$HOME/tsg"
+  pwd
+}
+
+1st() {
+  cd "$HOME/tsg/1st"
+  pwd
+}
+
+1stk8s() {
+  cd "$HOME/tsg/1st-k8s"
   pwd
 }
 
@@ -439,10 +463,11 @@ source <(kubectl completion bash)
 complete -F __start_kubectl k
 complete -F __start_kubectl _k
 complete -F __start_kubectl kdev
+complete -F __start_kubectl kpdev
 complete -F __start_kubectl kpreprod
+complete -F __start_kubectl kppreprod
 complete -F __start_kubectl kprod
 complete -F __start_kubectl klocal
-complete -F __start_kubectl kpdev
 complete -F __start_kubectl kloadtesting
 
 printf "%s " "$(dirs -p)"

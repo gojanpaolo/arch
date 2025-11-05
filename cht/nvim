@@ -1,5 +1,5 @@
 format all resource ids with -target flag in terraform plan
-%s/^# \([^ ]\+\(.\{-}]\)\?\) \(must be replaced\|will be destroyed\|will be created\|will be updated in-place\|is tainted, so must be replaced\)$/-target='\1' \\
+%s/^.*# \([^ ]\+\(.\{-}]\)\?\) \(must be replaced\|will be destroyed\|will be created\|will be updated in-place\|is tainted, so must be replaced\|will no longer be managed by Terraform, but will not be destroyed\)$/-target='\1' \\
 #:%s/ # \(.*\) \(has moved\|will\|will no longer\|must\) \(to\|be\) .*/-target='\1' \\
 #deb :%s/ # \(.*\) \(has moved\|will\|will no longer\|must\) \(to\|be\) ./-target='\1' \
 
