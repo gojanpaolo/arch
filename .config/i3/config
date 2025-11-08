@@ -208,10 +208,12 @@ exec --no-startup-id feh --bg-scale /home/jan/images/hokusai.png # https://githu
 exec --no-startup-id workrave
 exec --no-startup-id alacritty -e bash -c 'tmux attach -t a 2>/dev/null || tmux new -s a'
 #exec --no-startup-id firejail --rlimit-as=90g google-chrome-stable
-exec --no-startup-id firejail brave
-exec --no-startup-id firejail firefox
+#exec --no-startup-id firejail brave
+exec --no-startup-id brave
+#exec --no-startup-id firejail firefox
+exec --no-startup-id firefox
 exec --no-startup-id slack
 exec --no-startup-id flameshot
-exec --no-startup-id virtualbox
+#exec --no-startup-id virtualbox
 
 bindsym Print exec --no-startup-id flameshot gui

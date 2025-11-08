@@ -15,6 +15,12 @@ HISTCONTROL=ignoredups
 # https://wiki.archlinux.org/title/Dotfiles
 alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
 
+dotfileswip() {
+  dotfiles add -u
+  dotfiles commit -m "wip"
+  dotfiles push
+}
+
 alias grep='grep --color=auto'
 alias l='less'
 alias L='less'
