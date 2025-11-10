@@ -465,6 +465,26 @@ yq_clean() {
   yq -i e 'select(.kind != "CustomResourceDefinition")' ${file}
 }
 
+encrypt() {
+  if [[ -z "$JANFOO" ]]; then
+    echo "JANFOO not set. Using manual password input."
+    read -p "Password: " password
+  else
+    password=$JANFOO
+  fi
+  cat "$1" | openssl aes-256-cbc -pbkdf2 -a -salt -pass pass:$password > "$1.enc"
+}
+
+decrypt() {
+  if [[ -z "$JANFOO" ]]; then
+    echo "JANFOO not set. Using manual password input."
+    read -p "Password: " password
+  else
+    password=$JANFOO
+  fi
+  cat "$1" | openssl aes-256-cbc -pbkdf2 -a -salt -pass pass:$password -d
+}
+
 source <(kubectl completion bash)
 complete -F __start_kubectl k
 complete -F __start_kubectl _k
