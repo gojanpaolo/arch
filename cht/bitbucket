@@ -1,0 +1,2 @@
+curl -X POST https://api.bitbucket.org/2.0/repositories/stronach/terraform-tsg/pullrequests -H "Authorization: Bearer $(gcloud secrets versions access latest --secret="terraform-ci-release-cutover-bitbucket-token" --project="tsg-terraform")" -H "Content-Type: application/json" --data '{"title":"dev -> preprod","source":{"branch":{"name":"dev"}},"destination":{"branch":{"name":"preprod"}}}'
+
