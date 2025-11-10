@@ -1,5 +1,5 @@
 if grep -q "Ubuntu" /etc/os-release; then
-  source "/mnt/c/Users/Jan/Dropbox/env/.bashrcdeb"
+  source "/mnt/c/Users/Jan/mega/env/.bashrcdeb"
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
@@ -418,15 +418,15 @@ tfstate() {
 }
 
 eenv() {
-  "$HOME/Dropbox/env/env.sh"
+  "/home/jan/mega/env/env.sh"
 }
 
 venv() {
-  nvim "$HOME/Dropbox/env/env.sh"
+  nvim "/home/jan/mega/env/env.sh"
 }
 
 varch() {
-  nvim "$HOME/Dropbox/env/arch.md"
+  nvim "/home/jan/mega/env/arch.md"
 }
 
 vrc() {
