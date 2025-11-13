@@ -58,7 +58,9 @@ alias kppreprod='kubectl --context="gke_tsg-parimax-preprod_us-central1_main"'
 alias kprod='kubectl --context="gke_tsg-1st-k8s_us-central1_first-cluster"'
 alias kloadtesting='kubectl --context="gke_tsg-1st-k8s-preprod_us-central1-a_load-testing"'
 alias hdev='helm --kube-context gke_first-gaming-dev_us-central1_first-cluster'
+alias hpdev='helm --kube-context gke_tsg-parimax-dev_us-central1_main'
 alias hpreprod='helm --kube-context gke_tsg-1st-k8s-preprod_us-central1_first-cluster'
+alias hppreprod='helm --kube-context gke_tsg-parimax-preprod_us-central1_main'
 alias hprod='helm --kube-context gke_tsg-1st-k8s_us-central1_first-cluster'
 
 alias ti='time terraform init '
@@ -199,6 +201,10 @@ gprodadmin() {
 gloadtesting() {
   gcloud container clusters get-credentials "load-testing" --project="tsg-1st-k8s-preprod" --region="us-central1-a" --dns-endpoint
   project=tsg-1st-k8s-preprod
+}
+
+gproj() {
+  export CLOUDSDK_CORE_PROJECT=$1
 }
 
 _knone() {
